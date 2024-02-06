@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>List of Users</h1>
+    <hr>
+    {% for user in users %}
+    {% set link = url_for('user', username=user.username) %}
+    <table>
+        <tr valign="top">
+            <td><img src="{{ user.avatar(36) }}"></td>
+            <td>ID: {{ user.id }} Username: <a href={{link}}>{{user.username}}</a> <br> Role: {{ user.get_role() }}</td>
+        </tr>
+    </table>
+    {% endfor %}
+{% endblock %}

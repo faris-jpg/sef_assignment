@@ -1,9 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, NumberRange
 import sqlalchemy as sa
 from app import db
-from app.models import User
+from app.models import User, Post
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -35,3 +35,21 @@ class RegistrationForm(FlaskForm):
 class PostForm(FlaskForm):
     body = StringField('Post body', validators=[DataRequired()])
     submit = SubmitField('Post')
+
+class RoleForm(FlaskForm):
+    role = StringField('New Role ID', validators=[DataRequired()])
+    submit = SubmitField('Set Role')
+
+    def validate_role(self, role):
+        if int(role.data) not in [-1,0,1,2]:
+            raise ValidationError('Invalid Role ID')
+        
+class DeletePost(FlaskForm):
+    post_ID = StringField('post_ID', validators=[DataRequired()])
+    submit = SubmitField('Delete')
+
+    def validate_post_ID(self, post_ID):
+        post = db.session.scalar(sa.select(Post).where(
+            Post.id == post_ID.data))
+        if post is None:
+            raise ValidationError('Please enter a valid post id.')

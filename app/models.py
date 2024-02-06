@@ -32,6 +32,23 @@ class User(UserMixin, db.Model):
     def avatar(self, size):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
+    
+    def set_role(self, role):
+        self.role = role
+        return
+    
+    def is_admin(self):
+        return self.role == 0
+    
+    def get_role(self):
+        roles = {
+            -1 : 'Unverified User',
+            0 : 'Admin',
+            1 : 'Lecturer',
+            2 : 'Student'
+        }
+        return roles.get(self.role)
+
 
 class Post(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)

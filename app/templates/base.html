@@ -12,6 +12,10 @@
             Assignment:
             <a href="{{url_for('index')}}">Home</a>
             <a href="{{url_for('board')}}">Board</a>
+            {% if not current_user.is_anonymous and current_user.is_admin() %}
+            <a href="{{ url_for('adminboard') }}">Admin Board</a>
+            <a href="{{ url_for('list') }}">User List</a>
+            {% endif %}
             {% if current_user.is_anonymous %}
             <a href="{{ url_for('login') }}">Login</a>
             {% else %}
@@ -19,6 +23,7 @@
             <a href="{{ url_for('logout') }}">Logout</a>
             {% endif %}
         </div>
+
         <hr>
         {% with messages = get_flashed_messages() %}
         {% if messages %}

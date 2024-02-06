@@ -1,7 +1,7 @@
 from app import app, db
 from app.models import User, Post
 from flask import render_template, flash, redirect, url_for, request
-from app.forms import LoginForm, RegistrationForm, PostForm
+from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy as sa
 from urllib.parse import urlsplit
@@ -52,6 +52,26 @@ def board():
                                 posts= db.session.scalars(sa.select(Post).order_by(sa.desc(Post.timestamp))).all(),
                                 form = form)
 
+@app.route('/adminboard', methods=['GET', 'POST'])
+@login_required
+def adminboard():
+    if not current_user.is_admin():
+        return redirect(url_for('index'))
+    form = DeletePost()
+    if form.validate_on_submit():
+        post = db.session.scalar(sa.select(Post).where(form.post_ID.data == Post.id))
+        # if post is None:
+        #     flash('Please enter an existing post ID')
+        #     return redirect(url_for('adminboard'))
+        db.session.delete(post)
+        db.session.commit()
+        flash('Deleted!')
+        return redirect(url_for('adminboard'))
+    return render_template('adminboard.html',
+                            title='Discussion Board',
+                                posts= db.session.scalars(sa.select(Post).order_by(sa.desc(Post.timestamp))).all(),
+                                form = form)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -67,9 +87,20 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
-@app.route('/user/<username>')
+@app.route('/user/<username>', methods=['GET', 'POST'])
 @login_required
 def user(username):
     user = db.first_or_404(sa.select(User).where(User.username == username))
+    form = RoleForm()
+    if form.validate_on_submit():
+        user.set_role(int(form.role.data))
+        db.session.commit()
+    return render_template('user.html', user=user,form = form, posts=db.session.scalars(sa.select(Post).where(user.id == Post.user_id)).all())
 
-    return render_template('user.html', user=user, posts=db.session.scalars(sa.select(Post).where(user.id == Post.user_id)).all())
+@app.route('/list')
+@login_required
+def list():
+    if not current_user.is_admin():
+        flash('Not authorized to access this page')
+        return redirect(url_for('userlist'))
+    return render_template('list.html', title='User List', users = db.session.scalars(sa.select(User)).all())
