@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from flask_wtf.file import FileField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, NumberRange
 import sqlalchemy as sa
 from app import db
@@ -53,3 +54,13 @@ class DeletePost(FlaskForm):
             Post.id == post_ID.data))
         if post is None:
             raise ValidationError('Please enter a valid post id.')
+        
+class UploadForm(FlaskForm):
+    file = FileField()
+    title = StringField('File Title', validators=[DataRequired()])
+    description = StringField('File Description', validators=[DataRequired()])
+
+    def validate_file(self, file):
+        if file.data is None or not ('.' in file.data.filename and file.data.filename.rsplit('.', 1)[1].lower() in {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}):
+            raise ValidationError('Please enter a valid file type')
+

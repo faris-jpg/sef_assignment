@@ -1,10 +1,12 @@
-from app import app, db
+from app import app, db, UPLOAD_FOLDER
 from app.models import User, Post
 from flask import render_template, flash, redirect, url_for, request
-from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost
+from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost, UploadForm
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy as sa
 from urllib.parse import urlsplit
+import os
+from werkzeug.utils import secure_filename
 
 
 
@@ -104,3 +106,18 @@ def list():
         flash('Not authorized to access this page')
         return redirect(url_for('userlist'))
     return render_template('list.html', title='User List', users = db.session.scalars(sa.select(User)).all())
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    form = UploadForm()
+    
+    if form.validate_on_submit():
+        filename = secure_filename(form.file.data.filename)
+        form.file.data.save('uploads/' + filename)
+        return redirect(url_for('upload'))
+
+    return render_template('upload.html',title='Upload', form=form)

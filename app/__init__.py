@@ -10,6 +10,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = 'login'
+UPLOAD_FOLDER = Config.UPLOAD_FOLDER
 
 from app import routes, models
 
