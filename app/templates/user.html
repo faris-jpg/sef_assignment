@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table>
+        <tr valign="top">
+            <td><img src="{{ user.avatar(128) }}"></td>
+            <td><h1>User: {{ user.username }}</h1></td>
+            <td><h1> | </h1> </td>
+            {%if user.role == -1 %}
+            <td><h1>Role: Unverified User </h1></td>
+            {%elif user.role == 0 %}
+            <td><h1>Role: Admin </h1></td>
+            {%elif user.role == 1 %}
+            <td><h1>Role: Lecturer </h1></td>
+            {% elif user.role == 2 %}
+            <td><h1>Role: Student </h1></td>
+            {% endif %}
+        </tr>
+    </table>
+    <hr>
+    {% for post in posts %}
+        {% include '_post.html' %}
+    {% endfor %}
+{% endblock %}
