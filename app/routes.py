@@ -1,6 +1,6 @@
 from app import app, db, UPLOAD_FOLDER
-from app.models import User, Post
-from flask import render_template, flash, redirect, url_for, request
+from app.models import User, Post, File
+from flask import render_template, flash, redirect, send_from_directory, url_for, request
 from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost, UploadForm
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy as sa
@@ -117,7 +117,17 @@ def upload():
     
     if form.validate_on_submit():
         filename = secure_filename(form.file.data.filename)
+
         form.file.data.save('uploads/' + filename)
+        file = File(filename=filename, user_id=current_user.id, path='uploads/' + filename)
+        db.session.add(file)
+        db.session.commit()
+        flash('File uploaded!')
+
         return redirect(url_for('upload'))
 
     return render_template('upload.html',title='Upload', form=form)
+
+@app.route('/listuploads')
+def uploads():
+    return render_template('listuploads.html', title='Uploads', files = db.session.scalars(sa.select(File)).all())

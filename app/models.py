@@ -18,6 +18,9 @@ class User(UserMixin, db.Model):
     posts: so.WriteOnlyMapped['Post'] = so.relationship(
         back_populates='author')
     
+    files: so.WriteOnlyMapped['File'] = so.relationship(
+        back_populates='uploader')
+    
     role: so.Mapped[int] = so.mapped_column(sa.Integer, default=-1, index=True, unique=False)
 
     def __repr__(self):
@@ -65,7 +68,18 @@ class Post(db.Model):
     
     def get_ftime(self):
         return self.timestamp.strftime("%H:%M %d/%m/%y")
-    
+
+class File(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    filename: so.Mapped[str] = so.mapped_column(sa.String(140))
+    timestamp: so.Mapped[datetime] = so.mapped_column(
+        index=True, default=lambda: datetime.now(timezone.utc))
+    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id),
+                                               index=True)
+    path: so.Mapped[str] = so.mapped_column(sa.String(140))
+
+    uploader: so.Mapped[User] = so.relationship(back_populates='files') 
+
 @login.user_loader
 def load_user(id):
     return db.session.get(User, int(id))
