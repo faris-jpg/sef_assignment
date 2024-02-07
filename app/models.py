@@ -85,6 +85,8 @@ class File(db.Model):
 
     description: so.Mapped[str] = so.mapped_column(sa.String(140), index=False, unique=False, nullable=True)
 
+    title: so.Mapped[str] = so.mapped_column(sa.String(140), index=False, unique=False, nullable=True, default='Untitled')
+
     def __repr__(self):
         return f'<File {self.filename}> {self.title} {self.description} '
 
