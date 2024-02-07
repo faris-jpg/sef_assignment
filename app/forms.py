@@ -65,6 +65,8 @@ class UploadForm(FlaskForm):
             raise ValidationError('Please enter a valid file type')
 
 class DeleteFile(FlaskForm):
-    form_id = int
-    submit = SubmitField('Delete')
+    delete = SubmitField('Delete')
 
+class UploadButton(FlaskForm):
+    submit = SubmitField('Upload New File')
+    

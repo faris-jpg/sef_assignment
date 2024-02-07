@@ -14,20 +14,12 @@
         </td>
         <td width="500px">
             <p>
-                {{ file.title }}
+                <a href="{{ url_for('details', fileid = file.id) }}">
+                    {{ file.title }}
                 {% if file.description %}
                 {{ file.description }}
                 {% endif %}
             </p>
         </td>
-        <td>
-            <!-- button from delete form-->
-            <form action="" method="post">
-                <input type="submit" value="Delete">
-            
-            </form>
-        </td>
-
     </tr>
 </table>
-

@@ -1,7 +1,7 @@
 from app import app, db, UPLOAD_FOLDER
 from app.models import User, Post, File
 from flask import render_template, flash, redirect, send_from_directory, url_for, request
-from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost, UploadForm, DeleteFile
+from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost, UploadForm, DeleteFile, UploadButton
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy as sa
 from urllib.parse import urlsplit
@@ -52,14 +52,27 @@ def logout():
 @app.route('/board', methods=['GET', 'POST'])
 @login_required
 def board():
-    form =  DeleteFile()
+    form = UploadButton()
     if form.validate_on_submit():
-        file = db.session.scalar(sa.select(File).where(form.file_ID == File.id))
+        return redirect(url_for('upload'))
+    return render_template('board.html',title='Files', files=db.session.scalars(sa.select(File)).all(), form=form)
+
+@app.route('/details/<fileid>', methods=['GET', 'POST'])
+def details(fileid):
+    form = DeleteFile()
+    file = db.session.scalar(sa.select(File).where(File.id == fileid))
+    if file is None:
+        flash('File not found')
+        return redirect(url_for('board'))
+    if form.validate_on_submit():
+        file = db.session.scalar(sa.select(File).where(fileid == File.id))
         db.session.delete(file)
         db.session.commit()
         flash('Deleted!')
-
-    return render_template('board.html',title='Upload', form=form, files=db.session.scalars(sa.select(File)).all())
+        return redirect(url_for('board'))
+    
+    return render_template('details.html', title='File Details', file=file, form=form)
+    
 
 @app.route('/adminboard', methods=['GET', 'POST'])
 @login_required
@@ -69,9 +82,9 @@ def adminboard():
     form = DeletePost()
     if form.validate_on_submit():
         post = db.session.scalar(sa.select(Post).where(form.post_ID.data == Post.id))
-        # if post is None:
-        #     flash('Please enter an existing post ID')
-        #     return redirect(url_for('adminboard'))
+        if post is None:
+            flash('Please enter an existing post ID')
+            return redirect(url_for('adminboard'))
         db.session.delete(post)
         db.session.commit()
         flash('Deleted!')
@@ -126,7 +139,7 @@ def upload():
         filename = secure_filename(form.file.data.filename)
 
         form.file.data.save('uploads/' + filename)
-        file = File(filename=filename, user_id=current_user.id, path='uploads/' + filename, description=form.description.data)
+        file = File(filename=filename,user_id=current_user.id, path='uploads/' + filename, description=form.description.data,)
         db.session.add(file)
         db.session.commit()
         flash('File uploaded!')
@@ -135,6 +148,3 @@ def upload():
 
     return render_template('upload.html',title='Upload', form=form)
 
-@app.route('/listuploads')
-def uploads():
-    return render_template('listuploads.html', title='Uploads', files = db.session.scalars(sa.select(File)).all())
