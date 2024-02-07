@@ -1,7 +1,7 @@
 from app import app, db, UPLOAD_FOLDER
-from app.models import User, Post, File
+from app.models import User, Post, File, Assignment, Submission
 from flask import render_template, flash, redirect, send_from_directory, url_for, request
-from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost, UploadForm, DeleteFile, UploadButton
+from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost, UploadForm, DeleteFile, UploadButton, AssignmentForm
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy as sa
 from urllib.parse import urlsplit
@@ -132,6 +132,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 @app.route('/upload', methods=['GET', 'POST'])
+@login_required
 def upload():
     form = UploadForm()
     
@@ -149,6 +150,35 @@ def upload():
     return render_template('upload.html',title='Upload', form=form)
 
 @app.route('/uploads/<filename>')
+@login_required
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+@app.route('/assignments', methods=['GET', 'POST'])
+@login_required
+def assignments():
+    form = UploadButton()
+    if form.validate_on_submit():
+        return redirect(url_for('createAssignment'))
+    return render_template('assignments.html',
+                            title='Assignments',
+                              assignments=db.session.scalars(sa.select(Assignment).order_by(sa.desc(Assignment.timestamp))).all(),
+                                form=form)
+
+@app.route('/createAssignment', methods=['GET', 'POST'])
+@login_required
+def createAssignment():
+    form = AssignmentForm()
+    if form.validate_on_submit():
+        assignment = Assignment(title=form.title.data,
+                                 description=form.description.data,
+                                   user_id=current_user.id,
+                                     duedate=form.duration.data,
+                                       totalMarks=form.marks.data
+        )
+        db.session.add(assignment)
+        db.session.commit()
+        flash('Assignment created!')
+        return redirect(url_for('assignments'))
+
+    return render_template('createAssignment.html',title='Create Assignment', form=form)

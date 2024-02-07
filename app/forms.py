@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, FloatField, DateField
 from flask_wtf.file import FileField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, NumberRange
 import sqlalchemy as sa
@@ -70,3 +70,10 @@ class DeleteFile(FlaskForm):
 class UploadButton(FlaskForm):
     submit = SubmitField('Upload New File')
     
+class AssignmentForm(FlaskForm):
+    title = StringField('Assignment Title', validators=[DataRequired()])
+    description = StringField('Assignment Description', validators=[DataRequired()])
+    duration = DateField('Date due', validators=[DataRequired()])
+    marks = FloatField('Marks', validators=[DataRequired()])
+    submit = SubmitField('Create Assignment')
+        

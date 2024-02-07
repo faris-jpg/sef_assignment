@@ -2,14 +2,14 @@
 
 {% block content %}
     <h1>Hi, {{ current_user.username }}!</h1>
-    <h1>Uploaded Files</h1>
+    <h1>Assignments</h1>
     {% if current_user.is_lecturer() or current_user.is_admin() %}
         <form action="" method="post">
             {{ form.hidden_tag() }}
-            <input type="submit" value="Create">
+            <input type="submit" value="Upload">
         </form>
     {% endif %}
-    {% for file in files %}
-        {% include '_files.html' %}
+    {% for assignment in assignments %}
+        {% include '_assignment.html' %}
     {% endfor %}
 {% endblock %}

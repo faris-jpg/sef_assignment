@@ -30,6 +30,9 @@
                     <li class="nav-item">
                         <a class="nav-link" aria-current="page" href="{{url_for('board')}}">Files</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="{{url_for('assignments')}}">Assignments</a>
+                    </li>
                     {% if not current_user.is_anonymous and current_user.is_admin() %}
                     <li class="nav-item">
                         <a class="nav-link" aria-current="page" href="{{ url_for('adminboard') }}">Admin Board</a>

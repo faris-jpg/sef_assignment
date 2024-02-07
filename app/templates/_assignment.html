@@ -1,0 +1,28 @@
+<table class="table table-hover">
+    
+    <tr>
+        <td width="500px">
+            <p>
+                {{ assignment.title }}
+                </a>
+                <br> {% if assignment.description %}
+                {{ assignment.description }}
+                {% endif %}
+            </p>
+        </td>
+        <td width="100px">
+            <p>
+                {{ assignment.totalMarks }}
+            </p>
+        <td width="100px">
+            <a href="{{ url_for('user', username=assignment.asmtauthor.username) }}">
+                {{ assignment.asmtauthor.username }}
+            </a>
+        </td>
+        <td width="100px">
+            <p>
+                {{ assignment.duedate.strftime('%d-%m-%Y') }}
+            </p>
+        </td>
+    </tr>
+</table>

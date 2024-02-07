@@ -23,6 +23,13 @@ class User(UserMixin, db.Model):
     
     role: so.Mapped[int] = so.mapped_column(sa.Integer, default=-1, index=True, unique=False)
 
+    assignments: so.WriteOnlyMapped['Assignment'] = so.relationship(
+        back_populates='asmtauthor')
+    
+    submissions: so.WriteOnlyMapped['Submission'] = so.relationship(
+        back_populates='submitter')
+
+
     def __repr__(self):
         return '<User {}>'.format(self.username)
     
@@ -87,9 +94,54 @@ class File(db.Model):
 
     title: so.Mapped[str] = so.mapped_column(sa.String(140), index=False, unique=False, nullable=True, default='Untitled')
 
+    submissions: so.Mapped['Submission'] = so.relationship(back_populates='file')
+
     def __repr__(self):
         return f'<File {self.filename}> {self.title} {self.description} '
+    
+class Assignment(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    title: so.Mapped[str] = so.mapped_column(sa.String(140))
+    description: so.Mapped[str] = so.mapped_column(sa.String(255))
+    timestamp: so.Mapped[datetime] = so.mapped_column(
+        index=True, default=lambda: datetime.now(timezone.utc))
+    duedate: so.Mapped[datetime] = so.mapped_column(
+        index=True, nullable=True)
+    totalMarks: so.Mapped[float] = so.mapped_column(sa.Float, index=False, unique=False, nullable=True, default=0)
+    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id),
+                                               index=True)
+
+    asmtauthor: so.Mapped[User] = so.relationship(back_populates='assignments')
+
+    submissions: so.Mapped['Submission'] = so.relationship(back_populates='assignment')
+
+    def __repr__(self):
+        return f'<Assignment {self.title}> {self.description} '
+    
+class Submission(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    title: so.Mapped[str] = so.mapped_column(sa.String(140))
+    description: so.Mapped[str] = so.mapped_column(sa.String(140))
+    timestamp: so.Mapped[datetime] = so.mapped_column(
+        index=True, default=lambda: datetime.now(timezone.utc))
+    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id),
+                                               index=True)
+    file_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(File.id),
+                                               index=True)
+    assignment_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Assignment.id),
+                                               index=True)
+
+    submitter: so.Mapped[User] = so.relationship(back_populates='submissions')
+
+    assignment: so.Mapped[Assignment] = so.relationship(back_populates='submissions')
+
+    file: so.Mapped[File] = so.relationship(back_populates='submissions')
+
+    
+    def __repr__(self):
+        return f'<Submission {self.title}> {self.description} '
 
 @login.user_loader
 def load_user(id):
     return db.session.get(User, int(id))
+
