@@ -1,32 +1,35 @@
+
+
 {% extends "base.html" %}
 
 {% block content %}
-    <table>
-        <tr valign="top">
-            <td><img src="{{ user.avatar(128) }}"></td>
-            <td><h1>User: {{ user.username }}</h1></td>
-            <td><h1> | </h1> </td>
-            <td><h1>Role: {{ user.get_role() }} </h1></td>
-
+    <table class="table table-hover">
+        <tr>
+            <td width="256px"><img src="{{ user.avatar(256) }}"></td>
+            <td>
+                <h1>User: {{ user.username }}</h1>
+            </td>
+            <td>
+                {% if current_user.is_admin() %}
+                <p>
+                    <form action="" method="post">
+                    {{ form.hidden_tag() }}
+                    <p>
+                        {{ form.role.label }}
+                        {{ form.role(size=32) }}<br>
+                        {% for error in form.role.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p>{{ form.submit() }}</p>
+                </form>
+                </p>
+                {% endif %}
+            </td>
         </tr>
     </table>
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.role.label }}
-            {{ form.role(size=32) }}<br>
-            {% for error in form.role.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
-    <hr>
     {% for post in posts %}
         {% include '_post.html' %}
     {% endfor %}
 
-    
-
-    
 {% endblock %}
