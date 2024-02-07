@@ -43,6 +43,9 @@ class User(UserMixin, db.Model):
     def is_admin(self):
         return self.role == 0
     
+    def is_lecturer(self):
+        return self.role == 1
+
     def get_role(self):
         roles = {
             -1 : 'Unverified User',

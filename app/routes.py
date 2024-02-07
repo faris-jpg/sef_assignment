@@ -1,7 +1,7 @@
 from app import app, db, UPLOAD_FOLDER
 from app.models import User, Post, File
 from flask import render_template, flash, redirect, send_from_directory, url_for, request
-from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost, UploadForm
+from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost, UploadForm, DeleteFile
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy as sa
 from urllib.parse import urlsplit
@@ -29,10 +29,20 @@ def login():
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    return render_template('index.html', title='Home')
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(body=form.body.data, user_id=current_user.id,)
+        db.session.add(post)
+        db.session.commit()
+        flash('Posted!')
+        return redirect(url_for('index'))
+    return render_template('index.html',
+                            title='Discussion Board',
+                                posts= db.session.scalars(sa.select(Post).order_by(sa.desc(Post.timestamp))).all(),
+                                form = form)
 
 @app.route('/logout')
 def logout():
@@ -42,17 +52,14 @@ def logout():
 @app.route('/board', methods=['GET', 'POST'])
 @login_required
 def board():
-    form = PostForm()
+    form =  DeleteFile()
     if form.validate_on_submit():
-        post = Post(body=form.body.data, user_id=current_user.id,)
-        db.session.add(post)
+        file = db.session.scalar(sa.select(File).where(form.file_ID == File.id))
+        db.session.delete(file)
         db.session.commit()
-        flash('Posted!')
-        return redirect(url_for('board'))
-    return render_template('board.html',
-                            title='Discussion Board',
-                                posts= db.session.scalars(sa.select(Post).order_by(sa.desc(Post.timestamp))).all(),
-                                form = form)
+        flash('Deleted!')
+
+    return render_template('board.html',title='Upload', form=form, files=db.session.scalars(sa.select(File)).all())
 
 @app.route('/adminboard', methods=['GET', 'POST'])
 @login_required

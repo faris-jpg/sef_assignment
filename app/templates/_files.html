@@ -1,0 +1,31 @@
+<table class="table table-hover">
+    <tr>
+        <td width="70px">
+            <a href="{{ url_for('user', username=file.uploader.username) }}">
+                <img src="{{ file.uploader.avatar(70) }}" />
+            </a>
+        </td>
+        <td>
+            <a href="{{ url_for('user', username=file.uploader.username) }}">
+                {{ file.uploader.username }}
+            </a>
+        </td>
+        <td>
+        </td>
+        <td>
+            <p>
+                {{ file.filename }}
+                {{ file.description }}
+            </p>
+        </td>
+        <td>
+            <!-- button from delete form-->
+            <form action="" method="post">
+                <input type="submit" value="Delete">
+            
+            </form>
+        </td>
+
+    </tr>
+</table>
+
