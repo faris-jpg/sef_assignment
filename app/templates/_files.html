@@ -5,17 +5,19 @@
                 <img src="{{ file.uploader.avatar(70) }}" />
             </a>
         </td>
-        <td>
+        <td width="100px">
             <a href="{{ url_for('user', username=file.uploader.username) }}">
                 {{ file.uploader.username }}
             </a>
         </td>
         <td>
         </td>
-        <td>
+        <td width="500px">
             <p>
-                {{ file.filename }}
+                {{ file.title }}
+                {% if file.description %}
                 {{ file.description }}
+                {% endif %}
             </p>
         </td>
         <td>

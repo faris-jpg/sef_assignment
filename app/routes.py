@@ -126,7 +126,7 @@ def upload():
         filename = secure_filename(form.file.data.filename)
 
         form.file.data.save('uploads/' + filename)
-        file = File(filename=filename, user_id=current_user.id, path='uploads/' + filename)
+        file = File(filename=filename, user_id=current_user.id, path='uploads/' + filename, description=form.description.data)
         db.session.add(file)
         db.session.commit()
         flash('File uploaded!')

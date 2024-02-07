@@ -83,6 +83,11 @@ class File(db.Model):
 
     uploader: so.Mapped[User] = so.relationship(back_populates='files') 
 
+    description: so.Mapped[str] = so.mapped_column(sa.String(140), index=False, unique=False, nullable=True)
+
+    def __repr__(self):
+        return f'<File {self.filename}> {self.title} {self.description} '
+
 @login.user_loader
 def load_user(id):
     return db.session.get(User, int(id))

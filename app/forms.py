@@ -58,7 +58,7 @@ class DeletePost(FlaskForm):
 class UploadForm(FlaskForm):
     file = FileField()
     title = StringField('File Title', validators=[DataRequired()])
-    description = StringField('File Description', validators=[DataRequired()])
+    description = StringField('File Description')
 
     def validate_file(self, file):
         if file.data is None or not ('.' in file.data.filename and file.data.filename.rsplit('.', 1)[1].lower() in {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}):
