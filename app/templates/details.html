@@ -1,21 +1,22 @@
 {% extends "base.html" %}
-
 {% block content %}
-    <h1>{{ file.title }}</h1>
-    <p>{{ file.description }}</p>
-    <p>
-        {% if  %}
-    </p>
-    
-    {% if current_user.is_lecturer() or current_user.is_admin() %}
-    <p>
-        <form action="" method="post">
-            {{ form.hidden_tag() }}
-            <input type="submit" value="Delete">
-        </form>
-    </p>
-    {% endif %}
-    
+<h1>{{ file.title }}</h1>
+<p>{{ file.description }}</p>
+<div class="container">
+    {% set x = '/' + file.path %}
+    <img src="{{ x }}">
 
-    
+</div>
+
+{% if current_user.is_lecturer() or current_user.is_admin() %}
+<p>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <input type="submit" value="Delete">
+</form>
+</p>
+{% endif %}
+
+
+
 {% endblock %}

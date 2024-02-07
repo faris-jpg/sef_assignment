@@ -55,7 +55,7 @@ def board():
     form = UploadButton()
     if form.validate_on_submit():
         return redirect(url_for('upload'))
-    return render_template('board.html',title='Files', files=db.session.scalars(sa.select(File)).all(), form=form)
+    return render_template('board.html',title='Files', files=db.session.scalars(sa.select(File).order_by(sa.desc(File.timestamp))).all(), form=form)
 
 @app.route('/details/<fileid>', methods=['GET', 'POST'])
 def details(fileid):
@@ -139,7 +139,7 @@ def upload():
         filename = secure_filename(form.file.data.filename)
 
         form.file.data.save('uploads/' + filename)
-        file = File(filename=filename,user_id=current_user.id, path='uploads/' + filename, description=form.description.data,)
+        file = File(filename=filename,title = form.title.data, user_id=current_user.id, path='uploads/' + filename, description=form.description.data,)
         db.session.add(file)
         db.session.commit()
         flash('File uploaded!')
@@ -147,4 +147,8 @@ def upload():
         return redirect(url_for('upload'))
 
     return render_template('upload.html',title='Upload', form=form)
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
