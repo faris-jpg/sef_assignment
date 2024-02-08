@@ -1,7 +1,7 @@
 from app import app, db
 from app.models import User, Post, File, Assignment, Submission
 from flask import render_template, flash, redirect, send_from_directory, url_for, request
-from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost, UploadForm, DeleteFile, UploadButton, AssignmentForm
+from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost, UploadForm, DeleteFile, UploadButton, AssignmentForm, MarksForm
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy as sa
 from datetime import datetime, timezone
@@ -65,21 +65,31 @@ def board():
 @app.route('/details/<fileid>', methods=['GET', 'POST'])
 @login_required
 def details(fileid):
-    form = DeleteFile()
+    
     file = db.session.scalar(sa.select(File).where(File.id == fileid))
     if file is None:
         flash('File not found')
         return redirect(url_for('board'))
-    if form.validate_on_submit():
-        file = db.session.scalar(sa.select(File).where(fileid == File.id))
-        db.session.delete(file)
-        db.session.commit()
-        flash('Deleted!')
-        return redirect(url_for('board'))
+    if file.submissions is not None:
+        form = MarksForm()
+        if form.validate_on_submit():
+            submission = db.session.scalar(sa.select(Submission).where(Submission.file_id == fileid))
+            submission.marks = form.marks.data
+            db.session.commit()
+            flash('Marks updated!')
+            return redirect(url_for('details', fileid=fileid))
+        return render_template('details.html', title='File Details', file=file, form=form)
+    else:
+        form = DeleteFile()
+        if form.validate_on_submit():
+            file = db.session.scalar(sa.select(File).where(fileid == File.id))
+            db.session.delete(file)
+            db.session.commit()
+            flash('Deleted!')
+            return redirect(url_for('board'))
+        return render_template('details.html', title='File Details', file=file, form=form)
+        
     
-    return render_template('details.html', title='File Details', file=file, form=form)
-    
-
 @app.route('/adminboard', methods=['GET', 'POST'])
 @login_required
 def adminboard():

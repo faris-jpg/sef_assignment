@@ -7,7 +7,7 @@
         <td><a href="{{ url_for('user', username=file.uploader.username) }}">
                 {{ file.uploader.username }}
             </a></td>
-        
+
     </tr>
     <tr width="100%">
         <td>Submitted on:
@@ -16,6 +16,12 @@
             {{ file.timestamp.strftime('%d-%m-%Y') }}
         </td>
     </tr>
+    {% if file.submissions %}
+    <tr>
+        <td>Graded:</td>
+        <td>{{ file.submissions.marks }}/{{ file.submissions.assignment.totalMarks }}</td>
+    </tr>
+    {% endif %}
 </table>
 <p>{{ file.description }}</p>
 <div class="container">
@@ -25,20 +31,26 @@
 </div>
 
 {% if file.submissions and (current_user.is_lecturer() or current_user.is_admin()) %}
-
-
-
-{% endif %}
-
-{% if current_user.is_lecturer() or current_user.is_admin() %}
 <p>
 <form action="" method="post">
     {{ form.hidden_tag() }}
-    <input type="submit" value="Delete">
-</form>
-</p>
-{% endif %}
+    {{ form.marks.label }}<br>
+    {{ form.marks(size=32) }}<br>
+    {% for error in form.marks.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    <input type="submit" value="Grade">
+    </p>
+    </form>
 
 
+    {% elif (not file.submissions) and (current_user.is_lecturer() or current_user.is_admin())%}
+    <p>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <input type="submit" value="Delete">
+    </form>
+    </p>
+    {% endif %}
 
-{% endblock %}
+    {% endblock %}

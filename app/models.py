@@ -140,9 +140,15 @@ class Submission(db.Model):
 
     file: so.Mapped[File] = so.relationship(back_populates='submissions')
 
+    marks: so.Mapped[float] = so.mapped_column(sa.Float, index=False, unique=False, nullable=True, default=0)
+
     
     def __repr__(self):
         return f'<Submission {self.title}> {self.description} '
+    
+    def set_marks(self, marks):
+        self.marks = marks
+        return
 
 @login.user_loader
 def load_user(id):

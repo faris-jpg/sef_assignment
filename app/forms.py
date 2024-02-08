@@ -76,4 +76,8 @@ class AssignmentForm(FlaskForm):
     duration = DateField('Date due', validators=[DataRequired()])
     marks = FloatField('Marks', validators=[DataRequired()])
     submit = SubmitField('Create Assignment')
+
+class MarksForm(FlaskForm):
+    marks = FloatField('Marks', validators=[DataRequired()])
+    submit = SubmitField('Submit Marks')
     
