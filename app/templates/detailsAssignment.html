@@ -47,6 +47,22 @@
 </p>
 {% endif %}
 
+{% if current_user.is_lecturer() or current_user.is_admin() %}
+    {% if not submittedFile %}
+        <h1>No Submissions Yet</h1>
+    {% endif %}
+    {% if submittedFile %}
+    <h1>Submissions</h1>
+    <table>
+        <tr>
+        </tr>
+        {% for file in submittedFile %}
+        {% include '_files.html' %}
 
+        {% endfor %}
+
+    {% endif %}
+
+{% endif %}
 
 {% endblock %}

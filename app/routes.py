@@ -197,6 +197,9 @@ def detailsAssignment(assignmentid):
         if submission is not None:
             submittedFile = db.session.scalar(sa.select(File).where(File.id == submission.file_id))
     
+    if current_user.is_admin() or current_user.is_lecturer():
+        submittedFile = db.session.scalars(sa.select(File).where(File.submissions.has(Submission.assignment_id == assignmentid))).all()
+    
     if form.validate_on_submit():
         filename = secure_filename(form.file.data.filename)
         matchingname = db.session.scalar(sa.select(File).where(File.filename == filename))
