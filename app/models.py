@@ -52,6 +52,9 @@ class User(UserMixin, db.Model):
     
     def is_lecturer(self):
         return self.role == 1
+    
+    def is_student(self):
+        return self.role == 2
 
     def get_role(self):
         roles = {
@@ -97,7 +100,7 @@ class File(db.Model):
     submissions: so.Mapped['Submission'] = so.relationship(back_populates='file')
 
     def __repr__(self):
-        return f'<File {self.filename}> {self.title} {self.description} '
+        return f'<File {self.filename}> {self.title} {self.description}'
     
 class Assignment(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)

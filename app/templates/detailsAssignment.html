@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ assignment.title }}</h1>
+<p>{{ assignment.description }}</p>
+<p>Deadline: {{ assignment.duedate.strftime('%d-%m-%Y') }}</p>
+<p>Total Marks: {{ assignment.totalMarks }}</p>
+
+{% if current_user.is_student() and not submittedFile %}
+<p>
+    Create A Submission:
+    <form method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.title.label }}<br>
+            {{ form.title(size=32) }}<br>
+            {% for error in form.title.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            <br>{{ form.description.label }}<br>
+            {{ form.description(size=64) }}<br>
+            {% for error in form.description.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        {{ form.file }}
+        <input type="submit">
+    </form>
+</p>
+
+{% elif current_user.is_student() and submittedFile %}
+<h1>Your Submission</h1>
+<p>
+    <b>Title:</b> {{ submittedFile.title }}
+    <br>
+    <b>Description: </b> {{ submittedFile.description }}
+    <br>
+    <b>Submitted On: </b> {{ submittedFile.timestamp.strftime('%d-%m-%Y') }}
+    <br>
+    <div class="container">
+        {% set x = '/' + submittedFile.path %}
+        
+        <img src="{{ x }}" style="max-width: 25%;">
+    
+    </div>
+</p>
+{% endif %}
+
+
+
+{% endblock %}

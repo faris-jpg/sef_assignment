@@ -1,16 +1,21 @@
-from app import app, db, UPLOAD_FOLDER
+from app import app, db
 from app.models import User, Post, File, Assignment, Submission
 from flask import render_template, flash, redirect, send_from_directory, url_for, request
 from app.forms import LoginForm, RegistrationForm, PostForm, RoleForm, DeletePost, UploadForm, DeleteFile, UploadButton, AssignmentForm
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy as sa
+from datetime import datetime, timezone
 from urllib.parse import urlsplit
 import os
 from werkzeug.utils import secure_filename
 
 
+# Contributors:
+#   Faris Imran bin Muhammmad Faisal - 1221304603
 
-@app.route('/')
+
+
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -55,9 +60,10 @@ def board():
     form = UploadButton()
     if form.validate_on_submit():
         return redirect(url_for('upload'))
-    return render_template('board.html',title='Files', files=db.session.scalars(sa.select(File).order_by(sa.desc(File.timestamp))).all(), form=form)
+    return render_template('board.html',title='Files', files=db.session.scalars(sa.select(File).where(File.submissions == None).order_by(sa.desc(File.timestamp))).all(), form=form)
 
 @app.route('/details/<fileid>', methods=['GET', 'POST'])
+@login_required
 def details(fileid):
     form = DeleteFile()
     file = db.session.scalar(sa.select(File).where(File.id == fileid))
@@ -117,7 +123,10 @@ def user(username):
     if form.validate_on_submit():
         user.set_role(int(form.role.data))
         db.session.commit()
-    return render_template('user.html', user=user,form = form, posts=db.session.scalars(sa.select(Post).where(user.id == Post.user_id)).all())
+    return render_template('user.html', 
+                             user=user,
+                              form = form,
+                               posts=db.session.scalars(sa.select(Post).where(user.id == Post.user_id)).all())
 
 @app.route('/list')
 @login_required
@@ -125,11 +134,12 @@ def list():
     if not current_user.is_admin():
         flash('Not authorized to access this page')
         return redirect(url_for('userlist'))
-    return render_template('list.html', title='User List', users = db.session.scalars(sa.select(User)).all())
+    return render_template('list.html', title='User List',
+                            users = db.session.scalars(sa.select(User)).all())
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+           filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
@@ -138,9 +148,16 @@ def upload():
     
     if form.validate_on_submit():
         filename = secure_filename(form.file.data.filename)
-
+        matchingname = db.session.scalar(sa.select(File).where(File.filename == filename))
+        if matchingname is not None:
+            flash('File with the same name already exists')
+            return redirect(url_for('upload'))
         form.file.data.save('uploads/' + filename)
-        file = File(filename=filename,title = form.title.data, user_id=current_user.id, path='uploads/' + filename, description=form.description.data,)
+        file = File(filename=filename,
+                    title = form.title.data,
+                      user_id=current_user.id,
+                        path='uploads/' + filename,
+                          description=form.description.data)
         db.session.add(file)
         db.session.commit()
         flash('File uploaded!')
@@ -164,6 +181,50 @@ def assignments():
                             title='Assignments',
                               assignments=db.session.scalars(sa.select(Assignment).order_by(sa.desc(Assignment.timestamp))).all(),
                                 form=form)
+
+@app.route('/detailsAssignment/<assignmentid>', methods=['GET', 'POST'])
+@login_required
+def detailsAssignment(assignmentid):
+    form = UploadForm()
+    assignment = db.session.scalar(sa.select(Assignment).where(Assignment.id == assignmentid))
+    submittedFile = None
+    if assignment is None:
+        flash('Assignment not found')
+        return redirect(url_for('assignments'))
+    
+    if current_user.is_student():
+        submission = db.session.scalar(sa.select(Submission).where(Submission.assignment_id == assignmentid, Submission.user_id == current_user.id))
+        if submission is not None:
+            submittedFile = db.session.scalar(sa.select(File).where(File.id == submission.file_id))
+    
+    if form.validate_on_submit():
+        filename = secure_filename(form.file.data.filename)
+        matchingname = db.session.scalar(sa.select(File).where(File.filename == filename))
+        if matchingname is not None:
+            flash('File with the same name already exists')
+            return redirect(url_for('detailsAssignment', assignmentid=assignmentid))
+        
+        form.file.data.save('uploads/' + filename)
+        file = File(filename=filename,
+                    title = form.title.data,
+                      user_id=current_user.id,
+                        path='uploads/' + filename,
+                          description=form.description.data,
+                            timestamp=datetime.now(timezone.utc))
+        db.session.add(file)
+        db.session.commit()
+        flash('File uploaded!')
+        submission = Submission(title=form.title.data,
+                                 description=form.description.data,
+                                   user_id=current_user.id,
+                                     file_id=file.id,
+                                       assignment_id=assignmentid,
+                                         timestamp=datetime.now(timezone.utc))
+        db.session.add(submission)
+        db.session.commit()
+        flash('Submitted!')
+        return redirect(url_for('detailsAssignment', assignmentid=assignmentid))
+    return render_template('detailsAssignment.html', title='Assignment Details', assignment=assignment, form=form, submittedFile=submittedFile)
 
 @app.route('/createAssignment', methods=['GET', 'POST'])
 @login_required

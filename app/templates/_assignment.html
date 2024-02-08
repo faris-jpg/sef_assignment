@@ -3,7 +3,8 @@
     <tr>
         <td width="500px">
             <p>
-                {{ assignment.title }}
+                <a href="{{ url_for('detailsAssignment', assignmentid=assignment.id) }}">
+                    {{ assignment.title }}
                 </a>
                 <br> {% if assignment.description %}
                 {{ assignment.description }}

@@ -9,4 +9,6 @@ class Config:
     
     UPLOAD_FOLDER = basedir + '\\uploads'
 
+    SUBMISSION_FOLDER = basedir + '\\uploads\\submissions'
+
     
