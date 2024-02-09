@@ -71,6 +71,7 @@ def details(fileid):
         flash('File not found')
         return redirect(url_for('board'))
     if file.submissions is not None:
+        file.submissions.check_overdue()
         form = MarksForm()
         if form.validate_on_submit():
             submission = db.session.scalar(sa.select(Submission).where(Submission.file_id == fileid))

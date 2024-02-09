@@ -19,7 +19,15 @@
     {% if file.submissions %}
     <tr>
         <td>Graded:</td>
+        {% if file.submissions.marks %}
         <td>{{ file.submissions.marks }}/{{ file.submissions.assignment.totalMarks }}</td>
+        {% else %}
+        <td>Not Graded</td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td>Overdue:</td>
+        <td>{{ file.submissions.overdue }}</td>
     </tr>
     {% endif %}
 </table>

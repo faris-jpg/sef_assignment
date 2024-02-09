@@ -142,12 +142,20 @@ class Submission(db.Model):
 
     marks: so.Mapped[float] = so.mapped_column(sa.Float, index=False, unique=False, nullable=True, default=0)
 
+    overdue: so.Mapped[bool] = so.mapped_column(sa.Boolean, default=False, nullable=True)
+
     
     def __repr__(self):
         return f'<Submission {self.title}> {self.description} '
     
     def set_marks(self, marks):
         self.marks = marks
+        return
+    
+    def check_overdue(self):
+        if self.assignment.duedate is None:
+            return
+        self.overdue = self.timestamp > self.assignment.duedate
         return
 
 @login.user_loader
