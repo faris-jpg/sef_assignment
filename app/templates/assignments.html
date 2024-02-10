@@ -1,13 +1,11 @@
 {% extends "base.html" %}
+{% import 'bootstrap_wtf.html' as wtf %}
 
 {% block content %}
     <h1>Hi, {{ current_user.username }}!</h1>
     <h1>Assignments</h1>
     {% if current_user.is_lecturer() or current_user.is_admin() %}
-        <form action="" method="post">
-            {{ form.hidden_tag() }}
-            <input type="submit" value="Upload">
-        </form>
+        {{ wtf.quick_form(form) }}
     {% endif %}
     {% for assignment in assignments %}
         {% include '_assignment.html' %}

@@ -1,6 +1,5 @@
-
-
 {% extends "base.html" %}
+{% import 'bootstrap_wtf.html' as wtf %}
 
 {% block content %}
     <table class="table table-hover">
@@ -11,19 +10,7 @@
             </td>
             <td>
                 {% if current_user.is_admin() %}
-                <p>
-                    <form action="" method="post">
-                    {{ form.hidden_tag() }}
-                    <p>
-                        {{ form.role.label }}
-                        {{ form.role(size=32) }}<br>
-                        {% for error in form.role.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        {% endfor %}
-                    </p>
-                    <p>{{ form.submit() }}</p>
-                </form>
-                </p>
+                 {{ wtf.quick_form(form) }}
                 {% endif %}
             </td>
         </tr>
