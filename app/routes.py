@@ -116,9 +116,10 @@ def adminboard():
 @app.route('/auditlog', methods=['GET', 'POST'])
 @login_required
 def auditlog():
-     if current_user.is_admin():
-        return render_template('auditlog.html', title='Audit Log')
-    
+      if current_user.is_admin():
+          return render_template('auditlog.html', title='Audit Log')
+      else:
+            return redirect(url_for('index'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
