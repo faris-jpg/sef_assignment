@@ -12,6 +12,7 @@ from werkzeug.utils import secure_filename
 
 # Contributors:
 #   Faris Imran bin Muhammmad Faisal - 1221304603
+#   Nurhakim bin Hasbi - 1211305696
 
 
 
@@ -110,6 +111,14 @@ def adminboard():
                             title='Discussion Board',
                                 posts= db.session.scalars(sa.select(Post).order_by(sa.desc(Post.timestamp))).all(),
                                 form = form)
+
+
+@app.route('/auditlog', methods=['GET', 'POST'])
+@login_required
+def auditlog():
+     if current_user.is_admin():
+        return render_template('auditlog.html', title='Audit Log')
+    
 
 
 @app.route('/register', methods=['GET', 'POST'])
