@@ -158,7 +158,9 @@ def upload():
     form = UploadForm()
     
     if form.validate_on_submit():
+
         filename = secure_filename(form.file.data.filename)
+        
         matchingname = db.session.scalar(sa.select(File).where(File.filename == filename))
         if matchingname is not None:
             flash('File with the same name already exists')

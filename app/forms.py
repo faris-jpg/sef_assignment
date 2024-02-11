@@ -62,7 +62,7 @@ class UploadForm(FlaskForm):
     submit = SubmitField('Upload')
 
     def validate_file(self, file):
-        if file.data is None or not ('.' in file.data.filename and file.data.filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}):
+        if not ('.' in file.data.filename and file.data.filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}):
             raise ValidationError('Please enter a valid file type')
 
 class DeleteFile(FlaskForm):

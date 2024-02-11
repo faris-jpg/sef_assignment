@@ -10,7 +10,25 @@
 <p>
     <hr>
     <h1>Create A Submission:</h1>
-    {{ wtf.quick_form(form) }}
+    <form method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.title.label }}<br>
+            {{ form.title(size=32) }}<br>
+            {% for error in form.title.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            <br>{{ form.description.label }}<br>
+            {{ form.description(size=64) }}<br>
+            {% for error in form.description.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        {{ form.file }}
+        <input type="submit">
+    </form>
 </p>
 
 {% elif current_user.is_student() and submittedFile %}
@@ -34,7 +52,11 @@
     </tr>
     <tr>
         <td>Graded:</td>
+       {% if submittedFile.submissions.marks != 0 %}
         <td>{{ submittedFile.submissions.marks }}/{{ submittedFile.submissions.assignment.totalMarks }}</td>
+        {% else %}
+        <td>Not Graded</td>
+        {% endif %}
     </tr>
 </table>
 <div class="container">

@@ -1,6 +1,23 @@
 {% extends "base.html" %}
-{% import 'bootstrap_wtf.html' as wtf %}
 
 {% block content %}
-{{ wtf.quick_form(form) }}
+<form method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.title.label }}<br>
+        {{ form.title(size=32) }}<br>
+        {% for error in form.title.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        <br>{{ form.description.label }}<br>
+        {{ form.description(size=64) }}<br>
+        {% for error in form.description.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    {{ form.file }}
+    <input type="submit">
+</form>
 {% endblock %}
