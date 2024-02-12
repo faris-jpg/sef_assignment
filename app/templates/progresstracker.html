@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Assignment Progress Tracker</h2>
+
+  {% if is_teacher %}
+    <!-- Teacher View -->
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          {% for assignment in progress_data[0]['assignments'] %}
+            <th>{{ assignment['assignment'].title }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for student_data in progress_data %}
+          <tr>
+            <td>{{ student_data['user'].username }}</td>
+            {% for assignment in student_data['assignments'] %}
+              <td>
+                {% if not assignment['submitted'] %}
+                  <span class="badge bg-danger">Not Submitted</span>
+                {% elif assignment['marks'] is none %}
+                  Please mark the student
+                {% else %}
+                  <span class="badge bg-success">Submitted</span><br>
+                  Marks: {{ assignment['marks'] }}/{{ assignment['assignment'].totalMarks }}
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <!-- Student View -->
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Assignment</th>
+          <th>Status</th>
+          <th>Marks</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for assignment_data in progress_data %}
+          <tr>
+            <td>{{ assignment_data['assignment'].title }}</td>
+            <td>
+              {% if not assignment_data['submitted'] %}
+                <span class="badge bg-danger">Not Submitted</span>
+              {% else %}
+                <span class="badge bg-success">Submitted</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if assignment_data['marks'] is none %}
+                Please submit your assignment
+              {% else %}
+                Marks: {{ assignment_data['marks'] }}/{{ assignment_data['assignment'].totalMarks }}
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+{% endblock %}
