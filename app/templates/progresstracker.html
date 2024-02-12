@@ -10,7 +10,7 @@
         <tr>
           <th>Student</th>
           {% for assignment in progress_data[0]['assignments'] %}
-            <th>{{ assignment['assignment'].title }}</th>
+            <th><a href="{{ url_for('detailsAssignment', assignmentid=assignment['assignment'].id) }}" style="color: black; text-decoration: none;">{{ assignment['assignment'].title }}</a></th>
           {% endfor %}
         </tr>
       </thead>
@@ -47,7 +47,7 @@
       <tbody>
         {% for assignment_data in progress_data %}
           <tr>
-            <td>{{ assignment_data['assignment'].title }}</td>
+            <td><a href="{{ url_for('detailsAssignment', assignmentid=assignment_data['assignment'].id) }}" style="color: black; text-decoration: none;">{{ assignment_data['assignment'].title }}</a></td>
             <td>
               {% if not assignment_data['submitted'] %}
                 <span class="badge bg-danger">Not Submitted</span>
@@ -57,7 +57,7 @@
             </td>
             <td>
               {% if assignment_data['marks'] is none %}
-                Please submit your assignment
+                No marks has been given
               {% else %}
                 Marks: {{ assignment_data['marks'] }}/{{ assignment_data['assignment'].totalMarks }}
               {% endif %}
