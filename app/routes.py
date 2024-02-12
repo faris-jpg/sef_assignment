@@ -269,3 +269,38 @@ def createAssignment():
         return redirect(url_for('assignments'))
 
     return render_template('createAssignment.html',title='Create Assignment', form=form)
+
+@app.route('/progresstracker')
+@login_required
+def progress_tracker():
+    is_teacher = current_user.is_admin() or current_user.is_lecturer()
+
+    if is_teacher:
+        # For Teachers/Admins
+        students = User.query.filter_by(role=2).all()  # Assuming role 2 represents students
+        assignments = Assignment.query.all()
+        progress_data = []
+
+        for student in students:
+            student_data = {'user': student, 'assignments': []}
+            for assignment in assignments:
+                submission = Submission.query.filter_by(user_id=student.id, assignment_id=assignment.id).first()
+                submitted = submission is not None
+                marks = submission.marks if submitted and submission.marks is not None else None
+                student_data['assignments'].append({'assignment': assignment, 'submitted': submitted, 'marks': marks})
+
+            progress_data.append(student_data)
+
+        return render_template('progresstracker.html', title='Assignment Progress Tracker', progress_data=progress_data, is_teacher=is_teacher)
+    else:
+        # For Students
+        assignments = Assignment.query.all()
+        progress_data = []
+
+        for assignment in assignments:
+            submission = Submission.query.filter_by(user_id=current_user.id, assignment_id=assignment.id).first()
+            submitted = submission is not None
+            marks = submission.marks if submitted and submission.marks is not None else None
+            progress_data.append({'assignment': assignment, 'submitted': submitted, 'marks': marks})
+
+        return render_template('progresstracker.html', title='Assignment Progress Tracker', progress_data=progress_data, is_teacher=is_teacher)
